@@ -57,7 +57,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - id: tag
+      run: |
+        git describe --tags
+        echo "tag=$(git describe --tags)" >> "$GITHUB_OUTPUT"
     - uses: marvinpinto/action-automatic-releases@v1.2.1
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         prerelease: false
+        automatic_release_tag: ${{ steps.tag.outputs.tag }}
