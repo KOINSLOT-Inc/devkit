@@ -14,6 +14,8 @@ jobs:
     if: github.event.pull_request.merged == true
     uses: KOINSLOT-Inc/devkit/.github/workflows/version.reusable.yaml@main
     secrets: inherit
+    permissions:
+      contents: write
   publish:
     if: github.event.pull_request.merged == true
     needs: version
@@ -46,3 +48,5 @@ jobs:
     needs: publish
     uses: KOINSLOT-Inc/devkit/.github/workflows/release.reusable.yaml@main
     secrets: inherit
+    permissions:
+      contents: write
