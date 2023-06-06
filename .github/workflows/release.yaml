@@ -12,18 +12,8 @@ on:
 jobs:
   version:
     if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        ref: ${{ github.sha }}
-        fetch-depth: 0
-    - uses: anothrNick/github-tag-action@1.66.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        WITH_V: true
+    uses: KOINSLOT-Inc/devkit/.github/workflows/version.reusable.yaml@main
+    secrets: inherit
   publish:
     if: github.event.pull_request.merged == true
     needs: version
@@ -54,19 +44,5 @@ jobs:
   release:
     if: github.event.pull_request.merged == true
     needs: publish
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - id: tag
-      run: |
-        git describe --tags
-        echo "tag=$(git describe --tags)" >> "$GITHUB_OUTPUT"
-    - uses: marvinpinto/action-automatic-releases@v1.2.1
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        prerelease: false
-        automatic_release_tag: ${{ steps.tag.outputs.tag }}
+    uses: KOINSLOT-Inc/devkit/.github/workflows/release.reusable.yaml@main
+    secrets: inherit

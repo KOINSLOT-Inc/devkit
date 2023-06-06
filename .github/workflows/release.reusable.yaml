@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: 2023 KOINSLOT, Inc.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: Release
+on:
+  workflow_call:
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: check out with tags
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: get latest tag
+      id: tag
+      run: |
+        git describe --tags
+        echo "tag=$(git describe --tags)" >> "$GITHUB_OUTPUT"
+    - name: create release
+      uses: marvinpinto/action-automatic-releases@v1.2.1
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        prerelease: false
+        automatic_release_tag: ${{ steps.tag.outputs.tag }}

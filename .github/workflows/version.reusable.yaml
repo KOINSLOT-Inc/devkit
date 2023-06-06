@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2023 KOINSLOT, Inc.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: Bump Version
+on:
+  workflow_call:
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: check out with tags
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+    - name: bump version
+      uses: anothrNick/github-tag-action@1.66.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WITH_V: true
