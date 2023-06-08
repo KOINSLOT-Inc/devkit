@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# SPDX-FileCopyrightText: 2023 KOINSLOT, Inc.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# vi: ft=sh
+
+echo "🥝 devkit: lint..."
+
+set -euo pipefail
+
+inputFiles=${@:1:$#}
+
+echo "🥝 devkit: running clang-tidy..."
+
+clang-tidy -p compile_commands.json $inputFiles
+
+echo "🥝 devkit: running clang-format..."
+
+clang-format --dry-run --Werror $inputFiles
+
+echo "🥝 devkit: lint complete."

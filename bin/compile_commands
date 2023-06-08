@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# SPDX-FileCopyrightText: 2023 KOINSLOT, Inc.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# vi: ft=sh
+
+echo "🥝 devkit: compile_commands..."
+
+set -euo pipefail
+
+inputFiles=${@:1:$#}
+
+echo "🥝 devkit: combining [ $inputFiles ] into ./compile_commands.json..."
+
+mkdir -p /tmp/compile_commands
+jq -s "flatten" $inputFiles > /tmp/compile_commands/compile_commands.json
+
+python -m compdb -p /tmp/compile_commands list \
+  | sed \
+    -e 's/ -fstrict-volatile-bitfields//' \
+    -e 's/ -fno-tree-switch-conversion//' \
+    -e 's/ -nostartfiles//' \
+    -e 's/ -mlongcalls//' \
+    -e 's/ -march=rv32imc_zicsr_zifencei//' \
+    -e 's/-I\/opt/-isystem\/opt/g' \
+    > compile_commands.json
+
+rm -rf /tmp/compile_commands
+
+echo "🥝 devkit: compile_commands complete."
