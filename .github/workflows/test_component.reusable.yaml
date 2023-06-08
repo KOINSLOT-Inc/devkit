@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-name: Lint Espressif Component
+name: Test Espressif Component
 on:
   workflow_call:
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
     steps:
     - name: check out repository
@@ -27,12 +27,5 @@ jobs:
         for project_dir in ${{ steps.apps.outputs.apps }}; do
           docker run -v $PWD:$PWD -w $PWD -e SDKCONFIG_DEFAULTS='sdkconfig.ci' kywy/devkit:latest idf.py --project-dir $project_dir build
         done
-    - name: aggregate compilation database
-      run: |
-        APP_COMPILATION_DATABASES=""
-        for project_dir in ${{ steps.apps.outputs.apps }}; do
-          APP_COMPILATION_DATABASES+=" ${project_dir}/build/compile_commands.json"
-        done
-        docker run -v $PWD:$PWD -w $PWD kywy/devkit:latest compile_commands $APP_COMPILATION_DATABASES
-    - name: lint component
-      run: docker run -v $PWD:$PWD -w $PWD kywy/devkit:latest lint $(jq -r '.[] | .file | select(startswith("/home/") and (contains("/managed_components/") | not) and (contains("/build/") | not))' compile_commands.json | xargs echo)
+    - name: test component
+      run: docker run -v $PWD:$PWD -w $PWD kywy/devkit:latest test
