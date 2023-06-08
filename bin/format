@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# SPDX-FileCopyrightText: 2023 KOINSLOT, Inc.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# vi: ft=sh
+
+echo "🥝 devkit: format..."
+
+set -euo pipefail
+
+inputFiles=${@:1:$#}
+
+echo "🥝 devkit: running clang-format..."
+
+clang-format -i $inputFiles
+
+echo "🥝 devkit: format complete."

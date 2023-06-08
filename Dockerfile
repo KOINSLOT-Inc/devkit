@@ -22,4 +22,6 @@ RUN . /opt/esp/entrypoint.sh \
 	&& apt update \
 	&& apt install -y imagemagick
 
+COPY ./bin/. /usr/bin/
+
 ENV PATH="/esp-clang/bin:${PATH}"

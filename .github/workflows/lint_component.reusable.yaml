@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2023 KOINSLOT, Inc.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: Lint Espressif Component
+on:
+  workflow_call:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: check out repository
+      uses: actions/checkout@v3
+    - name: get apps to build
+      id: apps
+      run: |
+        echo "Found apps:"
+        find . | grep 'main/idf_component.yml' | xargs -n 1 dirname | xargs -n 1 dirname | xargs -n 1 echo "  -"
+        echo "apps=$(find . | grep 'main/idf_component.yml' | xargs -n 1 dirname | xargs -n 1 dirname | xargs echo)" >> "$GITHUB_OUTPUT"
+    - name: build apps
+      run: |
+        for project_dir in ${{ steps.apps.outputs.apps }}; do
+          docker run -v $PWD:$PWD -w $PWD -e SDKCONFIG_DEFAULTS='sdkconfig.ci' kywy/devkit:latest idf.py --project-dir $project_dir build
+        done
+    - name: aggregate compilation database
+      run: |
+        APP_COMPILATION_DATABASES=""
+        for project_dir in ${{ steps.apps.outputs.apps }}; do
+          APP_COMPILATION_DATABASES+=" ${project_dir}/build/compile_commands.json"
+        done
+        docker run -v $PWD:$PWD -w $PWD kywy/devkit:latest compile_commands $APP_COMPILATION_DATABASES
+    - name: lint component
+      run: docker run -v $PWD:$PWD -w $PWD kywy/devkit:latest lint $(jq -r '.[] | .file | select(startswith("/home/") and (contains("/managed_components/") | not) and (contains("/build/") | not))' compile_commands.json | xargs echo)
