@@ -10,7 +10,16 @@ echo "🥝 devkit: compile_commands..."
 
 set -euo pipefail
 
-inputFiles=${@:1:$#}
+inputFiles=""
+buildLocalFile=false
+
+for arg in $@; do
+  if [ $arg == "--local" ]; then
+    buildLocalFile=true
+  else
+    inputFiles+=" $arg"
+  fi
+done
 
 echo "🥝 devkit: combining [ $inputFiles ] into ./compile_commands.json..."
 
@@ -25,8 +34,15 @@ python -m compdb -p /tmp/compile_commands list \
     -e 's/ -mlongcalls//' \
     -e 's/ -march=rv32imc_zicsr_zifencei//' \
     -e 's/-I\/opt/-isystem\/opt/g' \
-    > compile_commands.json
+    > compile_commands.devkit.json
 
 rm -rf /tmp/compile_commands
+
+if [ $buildLocalFile == "true" ]; then
+  echo "🥝 devkit: building local compile_commands.json file..."
+  cp compile_commands.devkit.json compile_commands.json
+  sed -i "s#$IDF_PATH#$LOCAL_IDF_PATH#g" compile_commands.json
+  sed -i "s#$IDF_TOOLS_PATH#$LOCAL_IDF_TOOLS_PATH#g" compile_commands.json
+fi
 
 echo "🥝 devkit: compile_commands complete."

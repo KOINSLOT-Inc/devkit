@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# SPDX-FileCopyrightText: 2023 KOINSLOT, Inc.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# vi: ft=sh
+
+echo "🥝 devkit: build..."
+
+set -euo pipefail
+
+if [ -z ${1:-} ]; then
+  projectDir="./"
+else
+  projectDir="./$1"
+fi
+
+idf.py --project-dir $projectDir build
+
+echo "🥝 devkit: build complete."
