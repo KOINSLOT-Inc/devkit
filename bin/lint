@@ -14,7 +14,7 @@ inputFiles=${@:1:$#}
 
 echo "🥝 devkit: running clang-tidy..."
 
-clang-tidy -p compile_commands.json $inputFiles
+clang-tidy -p compile_commands.devkit.json $inputFiles
 
 echo "🥝 devkit: running clang-format..."
 
