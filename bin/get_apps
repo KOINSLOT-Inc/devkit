@@ -6,12 +6,6 @@
 
 # vi: ft=sh
 
-echo "🥝 devkit: format..."
-
 set -euo pipefail
 
-echo "🥝 devkit: running clang-format..."
-
-clang-format -i $@
-
-echo "🥝 devkit: format complete."
+find . | grep 'main/idf_component.yml' | xargs -n 1 dirname | xargs -n 1 dirname

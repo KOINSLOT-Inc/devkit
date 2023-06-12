@@ -10,12 +10,9 @@ echo "🥝 devkit: build..."
 
 set -euo pipefail
 
-if [ -z ${1:-} ]; then
-  projectDir="./"
-else
-  projectDir="./$1"
-fi
-
-idf.py --project-dir $projectDir build
+for projectDir in $(get_apps); do
+  echo "🥝 devkit: building $projectDir..."
+  idf.py --project-dir $projectDir build
+done
 
 echo "🥝 devkit: build complete."

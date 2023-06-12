@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2023 KOINSLOT, Inc.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+COMPILATION_DATABASES := $(shell get_apps | xargs -I {} -n 1 echo {}/build/compile_commands.json)
+SRCS := CMakeLists.txt $(shell find src include test test_app examples -type f \( -name "*.hpp" -o -name "*.cpp" -o -name "CMakeLists.txt" -o -name "sdkconfig*" \) | grep -v /build/)
+BUILDS := $(shell get_apps | xargs -I {} -n 1 echo {}/build/.devkit)
+
+$(BUILDS) &: $(SRCS)
+	build
+	touch $(BUILDS)
+
+.devkit/compile_commands.json: $(BUILDS)
+	compile_commands
+
+.PHONY: build
+build: $(BUILDS)
+
+.PHONY: lint
+lint: .devkit/compile_commands.json
+	lint
+
+.PHONY: test
+test: $(BUILDS)
+	test_apps
+
+.PHONY: flash/%
+flash/%:
+	@nc -vz host.docker.internal 4000 2>&1 > /dev/null || ( \
+		echo "Flash server not running! Run 'esp_rfc2217_server.py -v -p 4000 $$IDF_PORT' or 'make flash-server'" \
+		&& return 1 \
+		)
+	idf.py --project-dir $(patsubst flash/%,%,$@) --port rfc2217://host.docker.internal:4000?ign_set_control flash

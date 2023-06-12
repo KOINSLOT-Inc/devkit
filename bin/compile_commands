@@ -10,23 +10,26 @@ echo "🥝 devkit: compile_commands..."
 
 set -euo pipefail
 
-inputFiles=""
-buildLocalFile=false
+inputFiles="$(get_apps | xargs -I {} -n 1 echo {}/build/compile_commands.json)"
 
-for arg in $@; do
-  if [ $arg == "--local" ]; then
-    buildLocalFile=true
-  else
-    inputFiles+=" $arg"
+echo "🥝 devkit: combining [ $(echo $inputFiles | xargs echo) ] into ./compile_commands.json..."
+
+for compilationDatabase in $inputFiles; do
+  # restore any rename compilation databases so they can be rebuilt
+  if [ -f $compilationDatabase.processed ]; then
+    mv $compilationDatabase.processed $compilationDatabase
   fi
 done
 
-echo "🥝 devkit: combining [ $inputFiles ] into ./compile_commands.json..."
+mkdir -p .devkit
+jq -s "flatten" $inputFiles > .devkit/compile_commands.json
 
-mkdir -p /tmp/compile_commands
-jq -s "flatten" $inputFiles > /tmp/compile_commands/compile_commands.json
+for compilationDatabase in $inputFiles; do
+  # rename compilation database so it isn't automatically picked up by clangd
+  mv $compilationDatabase $compilationDatabase.processed
+done
 
-python -m compdb -p /tmp/compile_commands list \
+python -m compdb -p .devkit list \
   | sed \
     -e 's/ -fstrict-volatile-bitfields//' \
     -e 's/ -fno-tree-switch-conversion//' \
@@ -34,13 +37,13 @@ python -m compdb -p /tmp/compile_commands list \
     -e 's/ -mlongcalls//' \
     -e 's/ -march=rv32imc_zicsr_zifencei//' \
     -e 's/-I\/opt/-isystem\/opt/g' \
-    > compile_commands.devkit.json
+    > .devkit/compile_commands.devkit.json
 
-rm -rf /tmp/compile_commands
+mv .devkit/compile_commands.devkit.json .devkit/compile_commands.json
 
-if [ $buildLocalFile == "true" ]; then
+if [ -n "${LOCAL_IDF_PATH:-}" ] && [ -n "${LOCAL_IDF_TOOLS_PATH:-}" ]; then
   echo "🥝 devkit: building local compile_commands.json file..."
-  cp compile_commands.devkit.json compile_commands.json
+  cp .devkit/compile_commands.json compile_commands.json
   sed -i "s#$IDF_PATH#$LOCAL_IDF_PATH#g" compile_commands.json
   sed -i "s#$IDF_TOOLS_PATH#$LOCAL_IDF_TOOLS_PATH#g" compile_commands.json
 fi
