@@ -17,10 +17,14 @@ RUN . /opt/esp/entrypoint.sh \
 	&& apt-get install -y \
 		jq \
 		otf2bdf \
+		netcat \
 	&& curl -sSLfo /usr/bin/yq https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 \
 	&& chmod +x /usr/bin/yq \
 	&& apt update \
 	&& apt install -y imagemagick
+
+RUN mkdir /devkit
+COPY Makefile.devkit /devkit/Makefile
 
 COPY ./bin/. /usr/bin/
 

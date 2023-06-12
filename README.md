@@ -1,8 +1,32 @@
+<!-- 
+SPDX-FileCopyrightText: 2023 KOINSLOT, Inc.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 # kywy/devkit
 
 This repo provides container tooling for local development and CI/CD pipelines for the Kywy project. The `devkit` image
 is built on top of Espressif's `espressif/idf` container with a few extra tools installed for testing, linting, and also
 building assets (e.g. font and image binary data).
+
+## CI Setup
+
+To setup a component repository to use this devkit for CI workflows you should:
+
+1. Make sure all source code is in one of the following directories: `src`, `include`, `examples`, `test`, `test_app`.
+1. Create a CI workflow that looks like:
+    ```yaml
+    name: Kywy ESP-IDF Component CI
+    on: pull_request
+    jobs:
+      lint:
+        uses: KOINSLOT-Inc/devkit/.github/workflows/lint_component.reusable.yaml@main
+      test:
+        needs: lint
+        uses: KOINSLOT-Inc/devkit/.github/workflows/test_component.reusable.yaml@main
+    ```
+1. Copy [Makefile.template](Makefile.template) in this repository to `Makefile` in the component repository.
 
 ## Local Setup
 
@@ -41,7 +65,7 @@ Note that you will likely need to change the target device for the Telnet server
 you can find the appropriate device by running `ls /dev` before and after your device is plugged in seeing what devices
 are added. Sometimes there may be two devices added. E.g. on a Mac I see
 
-```
+```sh
 >>> ls /dev
 ...
 /dev/tty.usbserial-1420
@@ -50,3 +74,9 @@ are added. Sometimes there may be two devices added. E.g. on a Mac I see
 ```
 
 In this case `/dev/tty.SLAB_USBtoUART` was the proper device to use.
+
+Component repositories should have flashing set up automatically with a `make flash-server` target copied from
+[Makefile.template](Makefile.template) and a `make flash/<project directory>` target. However, you will need to:
+
+1. Set the environment variable `IDF_PORT` to the device you found above. E.g. `export IDF_PORT=/dev/tty.SLAB_USBtoUART`
+1. Run `make flash-server` in another shell before running `make flash/<project directory>`.
