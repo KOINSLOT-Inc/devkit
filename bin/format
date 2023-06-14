@@ -12,6 +12,6 @@ set -euo pipefail
 
 echo "🥝 devkit: running clang-format..."
 
-clang-format -i $@
+clang-format -i $(get_files)
 
 echo "🥝 devkit: format complete."
