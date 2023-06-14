@@ -10,7 +10,7 @@ $(BUILDS) &: $(SRCS)
 	build
 	touch $(BUILDS)
 
-.devkit/compile_commands.json: $(BUILDS)
+.devkit/compile_commands.json compile_commands.json: $(BUILDS)
 	compile_commands
 
 .PHONY: build
@@ -20,9 +20,17 @@ build: $(BUILDS)
 lint: .devkit/compile_commands.json
 	lint
 
+.PHONY: format
+format: .devkit/compile_commands.json
+	format
+
 .PHONY: test
 test: $(BUILDS)
 	test_apps
+
+.PHONY: clean
+clean:
+	clean
 
 .PHONY: flash/%
 flash/%:
