@@ -8,4 +8,4 @@
 
 set -euo pipefail
 
-find . | grep 'main/idf_component.yml' | xargs -n 1 dirname | xargs -n 1 dirname
+find . | grep 'main/idf_component.yml' | grep -v managed_components | xargs -n 1 dirname | xargs -n 1 dirname
