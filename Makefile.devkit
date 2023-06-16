@@ -39,3 +39,7 @@ flash/%:
 		&& return 1 \
 		)
 	idf.py --project-dir $(patsubst flash/%,%,$@) --port rfc2217://host.docker.internal:4000?ign_set_control flash
+
+.PHONY: run/%
+run/%: $(BUILDS)
+	./$$(find $(patsubst run/%,%,$@)/build -name "*.elf" | head -n 1)
