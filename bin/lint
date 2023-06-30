@@ -30,6 +30,9 @@ fi
 
 echo "🥝 devkit: checking for uncommitted changes..."
 
+# TODO: remove when this issue is resolved: https://github.com/actions/checkout/issues/1169
+git config --system --add safe.directory $(pwd)
+
 if ! { 
   git update-index --really-refresh
   git diff-index --quiet HEAD --
