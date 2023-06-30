@@ -10,14 +10,12 @@ echo "🥝 devkit: clean..."
 
 set -euo pipefail
 
-for projectDir in $(get_apps); do
-  echo "🥝 devkit: cleaning $projectDir..."
-  idf.py --project-dir $projectDir fullclean
-done
+find ${1:-.} \( -name build -o -name managed_components -o -name .cache -o -name __pycache__ -o -name sdkconfig -o -name dependencies.lock \) | xargs -t rm -rf
 
-find . \( -name .cache -o -name __pycache__ -o -name sdkconfig \) | xargs rm -rf
-
-rm -rf .devkit
-rm -rf compile_commands.json
+if [ -z "${1:-}" ]; then
+  rm -rf .pytest_cache
+  rm -rf .devkit
+  rm -rf compile_commands.json
+fi
 
 echo "🥝 devkit: clean complete."

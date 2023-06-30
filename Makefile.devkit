@@ -32,6 +32,10 @@ test: $(BUILDS)
 clean:
 	clean
 
+.PHONY: clean/%
+clean/%:
+	clean $(patsubst clean/%,%,$@)
+
 .PHONY: flash/%
 flash/%:
 	@nc -vz host.docker.internal 4000 2>&1 > /dev/null || ( \
