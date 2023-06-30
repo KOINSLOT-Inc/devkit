@@ -15,7 +15,7 @@ jobs:
     - name: cache build files
       uses: actions/cache@v3
       with:
-        key: ${{ github.repository }}/${{ github.sha }}/build
+        key: ${{ github.repository }}/build/${{ github.sha }}
         path: |
           **/build
           .devkit
