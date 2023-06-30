@@ -17,7 +17,7 @@ $(BUILDS) &: $(SRCS)
 build: $(BUILDS)
 
 .PHONY: lint
-lint: .devkit/compile_commands.json docs/index.html
+lint: .devkit/compile_commands.json docs/build/index.html
 	lint
 
 .PHONY: format
@@ -49,17 +49,18 @@ run/%: $(BUILDS)
 	./$$(find $(patsubst run/%,%,$@)/build -name "*.elf" | head -n 1)
 
 # don't create docs targets if the repo doesn't have the standard docs setup
-ifneq ($(wildcard docs/src/.*),)
+ifneq ($(wildcard docs/conf.py),)
 
-RST_FILES := $(shell find docs/src -type f -name "*.rst")
+RST_FILES := $(shell find docs -type f -name "*.rst" -not -path "*/build/*")
 
-docs/generated/xml/index.xml: $(SRCS) docs/src/Doxyfile
-	doxygen docs/src/Doxyfile
+docs/build/xml/index.xml: $(SRCS) docs/Doxyfile .devkit/compile_commands.json
+	doxygen docs/Doxyfile
 
-docs/index.html: docs/generated/xml/index.xml docs/src/conf.py $(RST_FILES)
-	sphinx-build -W docs/src docs
+docs/build/index.html: docs/build/xml/index.xml docs/conf.py $(RST_FILES)
+	sphinx-build -W docs docs/build
 
 .PHONY: docs
-docs: docs/index.html
+docs: docs/build/index.html
+	touch docs/build/.nojekyll
 
 endif

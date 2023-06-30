@@ -25,7 +25,7 @@ black --check --diff --color .
 if [ -d docs/src ]; then
   echo "🥝 devkit: running sphinx-lint..."
 
-  sphinx-lint docs/src
+  sphinx-lint docs
 fi
 
 echo "🥝 devkit: checking for uncommitted changes..."
@@ -38,6 +38,7 @@ if ! {
   git diff-index --quiet HEAD --
 }; then
   >&2 echo -e "\033[31mUncommitted changes found.\033[0m"
+  git diff
   exit 1
 fi
 
