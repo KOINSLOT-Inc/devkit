@@ -17,7 +17,7 @@ $(BUILDS) &: $(SRCS)
 build: $(BUILDS)
 
 .PHONY: lint
-lint: .devkit/compile_commands.json
+lint: .devkit/compile_commands.json docs/index.html
 	lint
 
 .PHONY: format
@@ -47,3 +47,19 @@ flash/%:
 .PHONY: run/%
 run/%: $(BUILDS)
 	./$$(find $(patsubst run/%,%,$@)/build -name "*.elf" | head -n 1)
+
+# don't create docs targets if the repo doesn't have the standard docs setup
+ifneq ($(wildcard docs/src/.*),)
+
+RST_FILES := $(shell find docs/src -type f -name "*.rst")
+
+docs/generated/xml/index.xml: $(SRCS) docs/src/Doxyfile
+	doxygen docs/src/Doxyfile
+
+docs/index.html: docs/generated/xml/index.xml docs/src/conf.py $(RST_FILES)
+	sphinx-build -W docs/src docs
+
+.PHONY: docs
+docs: docs/index.html
+
+endif

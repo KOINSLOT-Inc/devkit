@@ -14,4 +14,8 @@ echo "🥝 devkit: running clang-format..."
 
 clang-format -i $(get_files)
 
+echo "🥝 devkit: running black..."
+
+black .
+
 echo "🥝 devkit: format complete."

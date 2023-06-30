@@ -18,4 +18,24 @@ echo "🥝 devkit: running clang-format..."
 
 clang-format --dry-run --Werror $(get_files)
 
+echo "🥝 devkit: running black..."
+
+black --check --diff --color .
+
+if [ -d docs/src ]; then
+  echo "🥝 devkit: running sphinx-lint..."
+
+  sphinx-lint docs/src
+fi
+
+echo "🥝 devkit: checking for uncommitted changes..."
+
+if ! { 
+  git update-index --really-refresh
+  git diff-index --quiet HEAD --
+}; then
+  >&2 echo -e "\033[31mUncommitted changes found.\033[0m"
+  exit 1
+fi
+
 echo "🥝 devkit: lint complete."
