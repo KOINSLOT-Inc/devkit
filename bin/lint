@@ -22,7 +22,7 @@ echo "🥝 devkit: running black..."
 
 black --check --diff --color .
 
-if [ -d docs/src ]; then
+if [ -d docs ]; then
   echo "🥝 devkit: running sphinx-lint..."
 
   sphinx-lint docs
