@@ -16,10 +16,6 @@ $(BUILDS) &: $(SRCS)
 .PHONY: build
 build: $(BUILDS)
 
-.PHONY: lint
-lint: .devkit/compile_commands.json docs/build/index.html
-	lint
-
 .PHONY: format
 format: .devkit/compile_commands.json
 	format
@@ -51,6 +47,8 @@ run/%: $(BUILDS)
 # don't create docs targets if the repo doesn't have the standard docs setup
 ifneq ($(wildcard docs/conf.py),)
 
+INDEX_HTML := docs/build/index.html
+
 RST_FILES := $(shell find docs -type f -name "*.rst" -not -path "*/build/*")
 
 docs/build/xml/index.xml: $(SRCS) docs/Doxyfile .devkit/compile_commands.json
@@ -60,7 +58,13 @@ docs/build/index.html: docs/build/xml/index.xml docs/conf.py $(RST_FILES)
 	sphinx-build -W docs docs/build
 
 .PHONY: docs
-docs: docs/build/index.html
+docs: $(INDEX_HTML)
 	touch docs/build/.nojekyll
 
+else
+INDEX_HTML := 
 endif
+
+.PHONY: lint
+lint: .devkit/compile_commands.json $(INDEX_HTML)
+	lint
